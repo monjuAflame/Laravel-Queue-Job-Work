@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\UserRegisterNotification;
 use App\Mail\UserRegisterMail;
 use App\Models\User;
 use App\Notifications\RegisteredUserNotification;
@@ -46,12 +47,9 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        event(new Registered($user));
+        UserRegisterNotification::dispatch();
 
-        $admins = User::where('is_admin', 1)->get();
-        foreach ($admins as $admin) {
-            Mail::to($admin)->send(new UserRegisterMail());        
-        }
+        event(new Registered($user));
 
         Auth::login($user);
 
