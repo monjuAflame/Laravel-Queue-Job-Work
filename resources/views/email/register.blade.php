@@ -1,1 +1,1 @@
-Hi, this is new email queue.
+Hi, this is {{ $name }} new email queue.

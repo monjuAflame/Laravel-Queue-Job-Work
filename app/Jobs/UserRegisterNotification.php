@@ -16,14 +16,15 @@ class UserRegisterNotification implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    private $user;
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($user)
     {
-        //
+        $this->user = $user;
     }
 
     /**
@@ -35,7 +36,7 @@ class UserRegisterNotification implements ShouldQueue
     {
         $admins = User::where('is_admin', 1)->get();
         foreach ($admins as $admin) {
-            Mail::to($admin)->send(new UserRegisterMail());        
+            Mail::to($admin)->send(new UserRegisterMail($this->user));        
         }
     }
 }

@@ -13,14 +13,16 @@ class UserRegisterMail extends Mailable
 {
     use Queueable, SerializesModels;
 
+    private $user;
+
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($user)
     {
-        //
+        $this->user = $user;
     }
 
     /**
@@ -44,6 +46,9 @@ class UserRegisterMail extends Mailable
     {
         return new Content(
             view: 'email.register',
+            with: [
+                'name' => $this->user->name,
+            ],
         );
     }
 
