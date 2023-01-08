@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Mail\UserRegisterFailKnowAdmin;
 use App\Mail\UserRegisterMail;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
@@ -24,7 +25,7 @@ class UserRegisterNotification implements ShouldQueue
      */
     public function __construct($user)
     {
-        $this->user = $user;
+        $this->users = $user;
     }
 
     /**
@@ -38,5 +39,12 @@ class UserRegisterNotification implements ShouldQueue
         foreach ($admins as $admin) {
             Mail::to($admin)->send(new UserRegisterMail($this->user));        
         }
+    }
+
+    public function failed(\Throwable $exception)
+    {
+        $admin = User::where('is_admin', 1)->first();
+        Mail::to('admin@admin.com')->send(new UserRegisterFailKnowAdmin($admin));
+        info('failed to process notify: '. get_class($exception) . '-'. $exception->getMessage());
     }
 }
