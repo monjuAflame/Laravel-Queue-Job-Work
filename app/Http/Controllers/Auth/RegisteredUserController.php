@@ -46,7 +46,6 @@ class RegisteredUserController extends Controller
 
         $admins = User::where('is_admin', 1)->get();
         Notification::send($admins, new RegisteredUserNotification($user));
-        dd($admins);
 
         event(new Registered($user));
 
