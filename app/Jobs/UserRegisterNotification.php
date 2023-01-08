@@ -41,10 +41,10 @@ class UserRegisterNotification implements ShouldQueue
         }
     }
 
-    public function failed(\Throwable $exception)
-    {
-        $admin = User::where('is_admin', 1)->first();
-        Mail::to('admin@admin.com')->send(new UserRegisterFailKnowAdmin($admin));
-        info('failed to process notify: '. get_class($exception) . '-'. $exception->getMessage());
-    }
+    // public function failed(\Throwable $exception)
+    // {
+    //     $admin = User::where('is_admin', 1)->first();
+    //     Mail::to('admin@admin.com')->send(new UserRegisterFailKnowAdmin($admin));
+    //     info('failed to process notify: '. get_class($exception) . '-'. $exception->getMessage());
+    // }
 }
