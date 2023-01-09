@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\SendWelcomeMessage;
 use App\Jobs\UserRegisterNotification;
 use App\Mail\UserRegisterMail;
 use App\Models\User;
@@ -13,6 +14,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rules;
@@ -47,11 +49,19 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        UserRegisterNotification::dispatch($user);
+        // UserRegisterNotification::dispatch($user);
+        $jobs = [];
+        foreach (User::where('id', '!=', $user->id)->pluck('id') as $recipient) {
+            $jobs[] = new SendWelcomeMessage($user->id, $recipient);
+        }
+
+        $batch = Bus::batch($jobs)->dispatch();
 
         event(new Registered($user));
 
         Auth::login($user);
+
+        return redirect('/dashboard?batch_id='.$batch->id);
 
         return redirect(RouteServiceProvider::HOME);
     }
