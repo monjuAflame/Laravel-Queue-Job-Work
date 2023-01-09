@@ -18,7 +18,6 @@ class UserRegisterNotification implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     private $user;
-    private $tries = 3;
     /**
      * Create a new job instance.
      *
@@ -26,7 +25,7 @@ class UserRegisterNotification implements ShouldQueue
      */
     public function __construct($user)
     {
-        $this->user = $user;
+        $this->users = $user;
     }
 
     /**
@@ -36,17 +35,9 @@ class UserRegisterNotification implements ShouldQueue
      */
     public function handle()
     {
-        if ($this->user->email_verified_at) {
-            $admins = User::where('is_admin', 1)->get();
-            foreach ($admins as $admin) {
-                Mail::to($admin)->send(new UserRegisterMail($this->user));        
-            }
-        } else {
-            if ($this->attempts() < 2) {
-                $this->release(60);
-            } else {
-                $this->release(600);
-            }
+        $admins = User::where('is_admin', 1)->get();
+        foreach ($admins as $admin) {
+            Mail::to($admin)->send(new UserRegisterMail($this->user));        
         }
     }
 

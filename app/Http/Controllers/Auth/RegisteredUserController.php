@@ -47,7 +47,7 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        UserRegisterNotification::dispatch($user)->delay(now()->addMinute(60));
+        UserRegisterNotification::dispatch($user);
 
         event(new Registered($user));
 
