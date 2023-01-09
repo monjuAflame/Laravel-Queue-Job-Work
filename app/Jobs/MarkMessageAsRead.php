@@ -36,6 +36,7 @@ class MarkMessageAsRead implements ShouldQueue
     public function handle()
     {
         $this->message->update(['read_at'=>now()]);
+        
         Notification::route('mail', $this->message->sender->email)
         ->notify(new NotificationsMessageIsReadNotification($this->message));
     }
