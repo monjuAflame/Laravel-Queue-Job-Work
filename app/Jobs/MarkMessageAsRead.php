@@ -17,15 +17,15 @@ class MarkMessageAsRead implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    private $message;
+    private $message_id;
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(Message $message)
+    public function __construct($message_id)
     {
-        $this->message = $message;
+        $this->message_id = $message_id;
     }
 
     /**
@@ -35,11 +35,15 @@ class MarkMessageAsRead implements ShouldQueue
      */
     public function handle()
     {
-        if (!$this->message->read_at) {
-            $this->message->update(['read_at'=>now()]);
+        $message = Message::find($this->message_id);
+        if ($message) {
+            
+            if (!$message->read_at) {
+                $message->update(['read_at'=>now()]);
+            }
+    
+            Notification::route('mail', $message->sender->email)
+            ->notify(new NotificationsMessageIsReadNotification($this->message));
         }
-        
-        Notification::route('mail', $this->message->sender->email)
-        ->notify(new NotificationsMessageIsReadNotification($this->message));
     }
 }
